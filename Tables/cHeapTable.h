@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include "cMemory.h"
 
 template<class TKey, class TData>
 class cHeapTable
@@ -11,6 +12,7 @@ private:
     int mCount;
     char* mData;
     int const mRowSize = sizeof(TKey) + sizeof(TData);
+    cMemory* mMemory;
 
 private:
     inline char* GetRowPointer(int rowId) const;
@@ -31,6 +33,7 @@ cHeapTable<TKey, TData>::cHeapTable(int capacity)
     mCapacity = capacity;
     mCount = 0;
     mData = new char[mRowSize * capacity];
+
 }
 
 template<class TKey, class TData>
