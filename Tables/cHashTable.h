@@ -15,13 +15,13 @@ private:
     int mItemCount = 0;
     int mNodeCount = 0;
     cMemory* mMemory;
-    int mSizeData = sizeof(cHashTableNode<TKey, TData>);
+    bool mWithoutRecursion;
 
 private:
     inline int HashValue(const TKey &key) const;
 
 public:
-    cHashTable(int capacity, bool withMemory = false);
+    cHashTable(int capacity, bool withMemory = false, bool withoutRecursion = false);
     ~cHashTable();
 
     bool Add(const TKey &key, const TData &data);
@@ -30,7 +30,7 @@ public:
 };
 
 template<class TKey, class TData>
-cHashTable<TKey,TData>::cHashTable(int capacity, bool withMemory)
+cHashTable<TKey,TData>::cHashTable(int capacity, bool withMemory, bool withoutRecursion)
 {
     mSize = capacity / 2;
     mHashTable = new cHashTableNode<TKey,TData>*[mSize];
@@ -40,9 +40,10 @@ cHashTable<TKey,TData>::cHashTable(int capacity, bool withMemory)
     }
 
     mMemory = NULL;
+    mWithoutRecursion = withoutRecursion;
 
     if(withMemory)
-        mMemory = new cMemory(capacity);
+        mMemory = new cMemory( (capacity+1) * sizeof(cHashTableNode<TKey, TData>));
 }
 
 template<class TKey, class TData>
@@ -74,11 +75,14 @@ bool cHashTable<TKey, TData>::Add(const TKey &key, const TData &data)
         }
         else
         {
-            char* mem = mMemory->New(sizeof(mSizeData));
+            char* mem = mMemory->New(sizeof(cHashTableNode<TKey, TData>));
             mHashTable[hv] = new (mem)cHashTableNode<TKey, TData>();
         }
         mNodeCount++;
     }
+
+    if(mWithoutRecursion)
+        return mHashTable[hv]->AddWithoutR(key, data, mItemCount, mNodeCount, mMemory);
 
     return mHashTable[hv]->Add(key, data, mItemCount, mNodeCount, mMemory);
 }
@@ -90,6 +94,9 @@ bool cHashTable<TKey, TData>::Find(const TKey &key, TData &data) const
     if (mHashTable[hv] == NULL) {
         return false;
     }
+
+    if(mWithoutRecursion)
+        return mHashTable[hv]->FindWithoutR(key, data);
 
     return mHashTable[hv]->Find(key, data);
 }

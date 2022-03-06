@@ -8,18 +8,30 @@
 
 void test2();
 void test1();
-void hashTableTest(int rowCount);
-float GetThroughput(const int i, double d);
+void hashTableTest(const int rowCount, bool wMemory, bool withoutRecursion);
+float GetThroughput(int opsCount, float period,int unit = 1e6);
 
 using namespace std;
 using namespace std::chrono;
 
 int main()
 {
-    hashTableTest(10);
+    printf("\n===========HEAP TABLE============\n");
     test1();
-    printf("\n=======================");
+    printf("\n===========RECORD TABLE============\n");
     test2();
+    printf("\n===========HASH TABLE============\n");
+    hashTableTest(10000,false,false);
+
+    printf("\n===========HASH TABLE Memory============\n");
+    hashTableTest(10000, true,false);
+
+    printf("\n===========HASH TABLE Recusive============\n");
+    hashTableTest(10000, false, true);
+
+    printf("\n===========HASH TABLE withoutRecusive memory============\n");
+    hashTableTest(10000,true,true);
+
     return 0;
 }
 
@@ -159,9 +171,9 @@ float GetThroughput(int opsCount, float period, int unit)
     return ((float)opsCount / unit) / period;
 }
 
-void hashTableTest(const int rowCount)
+void hashTableTest(const int rowCount,bool wMemory, bool withoutRecursion)
 {
-    cHashTable<TKey, TData> *hashTable = new cHashTable<TKey, TData>(rowCount / 2);
+    cHashTable<TKey, TData> *hashTable = new cHashTable<TKey, TData>(rowCount,wMemory,withoutRecursion);
 
     TKey key;
     TData data;
@@ -188,7 +200,7 @@ void hashTableTest(const int rowCount)
             printf("#Record inserted: %d   \r", i);
         }
     }
-/*
+
     auto t2 = high_resolution_clock::now();
     auto time_span = duration_cast<duration<double>>(t2 - t1);
     printf("Records insertion done, HashTable. Time: %.2fs, Throughput: %.2f mil. op/s.\n", time_span.count(), GetThroughput(rowCount, time_span.count()));
@@ -213,6 +225,6 @@ void hashTableTest(const int rowCount)
     printf("Table scan done, HashTable. Time: %.2fs, Throughput: %.2f mil. op/s.\n", time_span.count(), GetThroughput(rowCount, time_span.count()));
 
     hashTable->PrintStat();
-*/
+
     delete hashTable;
 }

@@ -21,17 +21,17 @@ public:
     cHashTableNode();
     ~cHashTableNode();
 
-    bool Add(const TKey &key, const TData &data, int &itemCount, int &nodeCount, cMemory *memory = NULL);
+    bool Add(const TKey &key, const TData &data, int &itemCount, int &nodeCount, cMemory *memory);
     bool Find(const TKey &key, TData &data) const;
 
-    bool AddWithoutR(const TKey &key, const TData &data, int &itemCount, int &nodeCount, cMemory *memory = NULL);
+    bool AddWithoutR(const TKey &key, const TData &data, int &itemCount, int &nodeCount, cMemory *memory);
     bool FindWithoutR(const TKey &key, TData &data) const;
 };
 
 template<class TKey, class TData>
 cHashTableNode<TKey, TData>::cHashTableNode()
 {
-    mNextNode = NULL;
+    mNextNode = nullptr;
     mEmptyNode = true;
 }
 
@@ -55,26 +55,26 @@ bool cHashTableNode<TKey, TData>::Add(const TKey &key, const TData &data, int &i
             ret = false;
         }
         else {
-            if (mNextNode == NULL) {
+            if (mNextNode == nullptr) {
                 if (memory == nullptr)
                 {
                     mNextNode = new cHashTableNode<TKey, TData>();
                 }else
                 {
-                    char *mem = memory->New(mSize);
-                    mNextNode = new(mem)cHashTableNode<TKey, TData>();
+                    auto *mem = memory->New(sizeof(cHashTableNode<TKey, TData>));
+                    mNextNode = new (mem)cHashTableNode<TKey, TData>();
                 }
                 nodeCount++;
             }
-            ret = mNextNode->Add(key, data, itemCount, nodeCount);
+            ret = mNextNode->Add(key, data, itemCount, nodeCount, memory);
         }
     }
     else {
         mKey = key;
         mData = data;
         mEmptyNode = false;
+        mNextNode = NULL;
         itemCount++;
-
         ret = true;
     }
     return ret;
@@ -98,15 +98,16 @@ bool cHashTableNode<TKey, TData>::Find(const TKey &key, TData &data) const
     return false;
 }
 template<class TKey, class TData>
-bool cHashTableNode<TKey, TData>::AddWithoutR(const TKey &key, const TData &data, int &itemCount, int &nodeCount, cMemory *memory = NULL)
+bool cHashTableNode<TKey, TData>::AddWithoutR(const TKey &key, const TData &data, int &itemCount, int &nodeCount, cMemory *memory)
 {
     auto node = this;
-    while (!node.mEmptyNode)
+    while (!node->mEmptyNode)
     {
         if (node->mKey == key)
         {
             return false;
         }
+
         if (node->mNextNode == nullptr)
         {
             if (memory == nullptr)
