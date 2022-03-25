@@ -15,7 +15,6 @@ private:
     TKey mKey;
     TData mData;
     cHashTableNode* mNextNode;
-    int mSize = sizeof(cHashTableNode<TKey, TData>);
 
 public:
     cHashTableNode();

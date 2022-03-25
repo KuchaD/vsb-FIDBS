@@ -12,7 +12,6 @@ private:
     int mCount;
     char* mData;
     int const mRowSize = sizeof(TKey) + sizeof(TData);
-    cMemory* mMemory;
 
 private:
     inline char* GetRowPointer(int rowId) const;

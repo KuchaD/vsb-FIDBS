@@ -14,14 +14,14 @@ private:
     cHashTableNode<TKey,TData>** mHashTable;
     int mItemCount = 0;
     int mNodeCount = 0;
-    cMemory* mMemory;
+    cMemory* mMemory = NULL;
     bool mWithoutRecursion;
 
 private:
     inline int HashValue(const TKey &key) const;
 
 public:
-    cHashTable(int capacity, bool withMemory = false, bool withoutRecursion = false);
+    cHashTable(int capacity, cMemory* memory = NULL, bool withoutRecursion = false);
     ~cHashTable();
 
     bool Add(const TKey &key, const TData &data);
@@ -30,7 +30,7 @@ public:
 };
 
 template<class TKey, class TData>
-cHashTable<TKey,TData>::cHashTable(int capacity, bool withMemory, bool withoutRecursion)
+cHashTable<TKey,TData>::cHashTable(int capacity, cMemory* memory, bool withoutRecursion)
 {
     mSize = capacity / 2;
     mHashTable = new cHashTableNode<TKey,TData>*[mSize];
@@ -39,11 +39,10 @@ cHashTable<TKey,TData>::cHashTable(int capacity, bool withMemory, bool withoutRe
         mHashTable[i] = NULL;
     }
 
-    mMemory = NULL;
     mWithoutRecursion = withoutRecursion;
 
-    if(withMemory)
-        mMemory = new cMemory( (capacity+1) * sizeof(cHashTableNode<TKey, TData>));
+    if(memory != NULL)
+        mMemory = memory;
 }
 
 template<class TKey, class TData>
